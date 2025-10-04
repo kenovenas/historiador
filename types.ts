@@ -4,6 +4,7 @@ export enum CreationType {
 }
 
 export interface GenerationParams {
+    projectName: string;
     creationType: CreationType;
     mainPrompt: string;
     titlePrompt: string;

@@ -66,7 +66,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ isOpen, onClose, history, o
                                         >
                                             <div className="flex justify-between items-start">
                                                 <div className="flex-grow mr-2">
-                                                    <p className="font-semibold text-gray-200 truncate">{item.mainPrompt || 'Criação sem título'}</p>
+                                                    <p className="font-semibold text-gray-200 truncate">{item.projectName || item.mainPrompt || 'Criação sem título'}</p>
                                                     <p className="text-xs text-gray-400 mt-1">
                                                         {new Date(item.timestamp).toLocaleString('pt-BR')}
                                                     </p>

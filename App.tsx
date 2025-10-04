@@ -22,6 +22,7 @@ const supportedLanguages = [
 const App: React.FC = () => {
     // Input State
     const [userApiKey, setUserApiKey] = useState('');
+    const [projectName, setProjectName] = useState('');
     const [creationType, setCreationType] = useState<CreationType>(CreationType.Story);
     const [mainPrompt, setMainPrompt] = useState('');
     const [titlePrompt, setTitlePrompt] = useState('');
@@ -81,6 +82,7 @@ const App: React.FC = () => {
         const itemToLoad = history.find(item => item.id === id);
         if (itemToLoad) {
             // Set inputs
+            setProjectName(itemToLoad.projectName || '');
             setCreationType(itemToLoad.creationType);
             setMainPrompt(itemToLoad.mainPrompt);
             setTitlePrompt(itemToLoad.titlePrompt);
@@ -134,8 +136,8 @@ const App: React.FC = () => {
     };
 
     const getGenerationParams = useCallback((): GenerationParams => ({
-        creationType, mainPrompt, titlePrompt, descriptionPrompt, thumbnailPrompt, characterCount, language
-    }), [creationType, mainPrompt, titlePrompt, descriptionPrompt, thumbnailPrompt, characterCount, language]);
+        projectName, creationType, mainPrompt, titlePrompt, descriptionPrompt, thumbnailPrompt, characterCount, language
+    }), [projectName, creationType, mainPrompt, titlePrompt, descriptionPrompt, thumbnailPrompt, characterCount, language]);
     
     const validateApiKey = () => {
         if (!userApiKey) {
@@ -169,6 +171,7 @@ const App: React.FC = () => {
     }, [mainPrompt, getGenerationParams, userApiKey]);
     
     const clearProject = () => {
+        setProjectName('');
         setMainPrompt('');
         setTitlePrompt('');
         setDescriptionPrompt('');
@@ -191,7 +194,15 @@ const App: React.FC = () => {
 
         setIsGenerating(true);
         setError(null);
-        clearProject();
+        
+        // Clear only previous results, not all inputs
+        setGeneratedTitles([]);
+        setGeneratedDescription('');
+        setGeneratedTags([]);
+        setGeneratedThumbnailPrompt('');
+        setGeneratedContent('');
+        setGeneratedContentCharCount(0);
+        setGeneratedCta('');
 
         try {
             const params = getGenerationParams();
@@ -290,6 +301,8 @@ const App: React.FC = () => {
         setTimeout(() => setCopiedField(null), 2000);
     }, []);
 
+
+
     const isLoading = isGenerating || !!regeneratingField || isEnhancing;
 
     const renderRegenerationModal = () => {
@@ -326,7 +339,7 @@ const App: React.FC = () => {
 
     const mainPromptLabel = (
         <div className="flex justify-between items-center">
-            <span>{`3. Ideia Principal para a ${creationType === CreationType.Story ? 'História' : 'Oração'}`}</span>
+            <span>{`4. Ideia Principal para a ${creationType === CreationType.Story ? 'História' : 'Oração'}`}</span>
             {creationType === CreationType.Story && (
                 <button 
                     onClick={handleEnhancePrompt} 
@@ -390,7 +403,21 @@ const App: React.FC = () => {
                     </div>
 
                     <div>
-                        <label className="block text-lg font-semibold mb-2 text-gray-300">2. Escolha o Tipo de Criação</label>
+                        <label htmlFor="project-name-input" className="block text-lg font-semibold mb-2 text-gray-300">
+                            2. Nome do Projeto (Opcional)
+                        </label>
+                        <input
+                            id="project-name-input"
+                            type="text"
+                            value={projectName}
+                            onChange={(e) => setProjectName(e.target.value)}
+                            placeholder="Ex: Parábola do Filho Pródigo - Série"
+                            className="w-full bg-gray-700 border border-gray-600 rounded-md p-3 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-lg font-semibold mb-2 text-gray-300">3. Escolha o Tipo de Criação</label>
                         <Selector<CreationType>
                             options={[
                                 { value: CreationType.Story, label: 'História Bíblica', icon: <BookOpenIcon /> },
@@ -413,7 +440,7 @@ const App: React.FC = () => {
                     </div>
 
                      <div>
-                        <label htmlFor="language-select" className="block text-lg font-semibold mb-2 text-gray-300">4. Idioma do Conteúdo</label>
+                        <label htmlFor="language-select" className="block text-lg font-semibold mb-2 text-gray-300">5. Idioma do Conteúdo</label>
                         <select
                             id="language-select"
                             value={language}
@@ -427,7 +454,7 @@ const App: React.FC = () => {
                     </div>
 
                     <div>
-                        <label htmlFor="char-count" className="block text-lg font-semibold mb-2 text-gray-300">5. Contagem de Caracteres</label>
+                        <label htmlFor="char-count" className="block text-lg font-semibold mb-2 text-gray-300">6. Contagem de Caracteres</label>
                         <input
                             id="char-count"
                             type="number"
