@@ -132,9 +132,19 @@ export async function generateDescription(params: GenerationParams, apiKey: stri
 export async function generateTags(params: GenerationParams, apiKey: string, modification?: string): Promise<string[]> {
     const languageName = languageMap[params.language] || 'Português do Brasil';
     const typeText = params.creationType === CreationType.Story ? 'história bíblica' : 'oração';
-    let prompt = `Para um vídeo do YouTube sobre uma ${typeText} com o tema "${params.mainPrompt}", gere uma lista de tags de SEO altamente relevantes. A tarefa tem uma regra crítica: a soma total de caracteres de todas as tags geradas deve estar entre 450 e 500 caracteres, para maximizar o aproveitamento do limite do YouTube. Inclua uma mistura de tags específicas (cauda longa) e genéricas (cauda curta) que os usuários provavelmente pesquisariam. Otimize para relevância e densidade de palavras-chave.`;
+    
+    let prompt = `Aja como um especialista em SEO para YouTube. Sua tarefa é gerar uma lista de tags de SEO altamente otimizadas para um vídeo sobre uma ${typeText} com o tema: "${params.mainPrompt}".
+
+**REGRAS OBRIGATÓRIAS:**
+1.  **Relevância Máxima:** As tags devem ser extremamente relevantes para o tema principal.
+2.  **Mistura Estratégica:** Crie uma mistura inteligente de:
+    *   **Tags Específicas (Long-tail):** Frases que um usuário digitaria para encontrar este vídeo específico (ex: "história do irmão do filho pródigo", "oração de agradecimento pela família").
+    *   **Tags Abrangentes (Short-tail):** Palavras-chave mais amplas que definem a categoria (ex: "parábolas de Jesus", "oração da noite", "histórias bíblicas").
+3.  **Limite de Caracteres:** A soma total de caracteres de TODAS as tags deve ser inferior a 480 caracteres. Isso é crucial para garantir uma margem de segurança dentro do limite de 500 caracteres do YouTube. Seja conciso e priorize as tags mais importantes.
+4.  **Idioma:** As tags devem ser no idioma ${languageName}.`;
+
     if (modification) prompt += ` Modifique com a seguinte instrução: "${modification}".`;
-    prompt += ` As tags devem ser relevantes e no idioma ${languageName}. Responda com um array JSON de strings.`;
+    prompt += ` Responda com um array JSON de strings.`;
     
     const schema = {
         type: Type.ARRAY,
@@ -142,13 +152,32 @@ export async function generateTags(params: GenerationParams, apiKey: string, mod
     };
     const responseJson = await generateJsonWithGemini(apiKey, prompt, params.language, schema);
 
+    let parsedTags: string[] = [];
     try {
-        const tags = JSON.parse(responseJson);
-        return Array.isArray(tags) ? tags.filter(Boolean) : [];
+        const rawTags = JSON.parse(responseJson);
+        if (Array.isArray(rawTags)) {
+            parsedTags = rawTags.map(tag => String(tag).trim()).filter(Boolean);
+        }
     } catch (e) {
         console.error("Failed to parse tags JSON:", e, "Raw response:", responseJson);
-        return responseJson.split(',').map(tag => tag.trim()).filter(Boolean);
+        parsedTags = responseJson.split(',').map(tag => tag.trim()).filter(Boolean);
     }
+    
+    // Enforce YouTube's 500 character limit as a final safeguard
+    const YOUTUBE_TAG_CHAR_LIMIT = 500;
+    const finalTags: string[] = [];
+    let currentLength = 0;
+
+    for (const tag of parsedTags) {
+        if (currentLength + tag.length <= YOUTUBE_TAG_CHAR_LIMIT) {
+            finalTags.push(tag);
+            currentLength += tag.length;
+        } else {
+            break; // Stop if adding the next tag would exceed the limit
+        }
+    }
+
+    return finalTags;
 }
 
 export async function generateThumbnailPrompt(params: GenerationParams, generatedContent: string, apiKey: string, modification?: string): Promise<string> {

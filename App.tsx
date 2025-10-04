@@ -118,6 +118,11 @@ const App: React.FC = () => {
         }
     };
 
+    const handleNewChat = () => {
+        clearProject();
+        setIsHistoryPanelOpen(false);
+    };
+
     const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUserApiKey(e.target.value);
     };
@@ -363,6 +368,7 @@ const App: React.FC = () => {
                 onLoadItem={handleLoadHistoryItem}
                 onDeleteItem={handleDeleteHistoryItem}
                 onClearAll={handleClearHistory}
+                onNewChat={handleNewChat}
             />
             <Header onToggleHistory={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)} />
             <main className="container mx-auto p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">

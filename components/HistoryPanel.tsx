@@ -1,6 +1,6 @@
 import React from 'react';
 import { HistoryItem } from '../types';
-import { TrashIcon } from './Icons';
+import { TrashIcon, PlusIcon } from './Icons';
 
 interface HistoryPanelProps {
     isOpen: boolean;
@@ -9,9 +9,10 @@ interface HistoryPanelProps {
     onLoadItem: (id: string) => void;
     onDeleteItem: (id: string) => void;
     onClearAll: () => void;
+    onNewChat: () => void;
 }
 
-const HistoryPanel: React.FC<HistoryPanelProps> = ({ isOpen, onClose, history, onLoadItem, onDeleteItem, onClearAll }) => {
+const HistoryPanel: React.FC<HistoryPanelProps> = ({ isOpen, onClose, history, onLoadItem, onDeleteItem, onClearAll, onNewChat }) => {
     
     const handleDelete = (e: React.MouseEvent, id: string) => {
         e.stopPropagation();
@@ -37,7 +38,16 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ isOpen, onClose, history, o
             <div className={`fixed top-0 left-0 h-full w-full max-w-sm bg-gray-800 border-r border-gray-700 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <div className="flex flex-col h-full">
                     <div className="flex items-center justify-between p-4 border-b border-gray-700">
-                        <h2 className="text-xl font-bold text-amber-400">Histórico de Criações</h2>
+                        <div className="flex items-center gap-3">
+                            <h2 className="text-xl font-bold text-amber-400">Histórico</h2>
+                            <button
+                                onClick={onNewChat}
+                                className="p-1 rounded-full text-amber-400 hover:bg-gray-700 transition-colors"
+                                title="Nova Criação"
+                            >
+                                <PlusIcon className="h-6 w-6" />
+                            </button>
+                        </div>
                         {history.length > 0 && (
                             <button
                                 onClick={onClearAll}
