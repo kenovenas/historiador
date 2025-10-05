@@ -6,7 +6,7 @@ interface ResultCardProps {
     title: string;
     icon: React.ReactNode;
     isLoading: boolean;
-    content?: string;
+    content?: string; // Kept for type compatibility but usage is changed
     footerText?: string;
     children?: React.ReactNode;
     onRegenerate?: () => void;
@@ -29,8 +29,8 @@ const ResultCard: React.FC<ResultCardProps> = ({
     hasContent: externalHasContent,
     actionsDisabled,
 }) => {
-    const internalHasContent = content || (React.Children.count(children) > 0);
-    const showContent = externalHasContent ?? internalHasContent;
+    // Rely on externalHasContent prop primarily, or check if children are provided.
+    const showContent = externalHasContent ?? (React.Children.count(children) > 0);
 
     return (
         <div className="bg-gray-800 p-5 rounded-lg shadow-lg border border-gray-700 min-h-[120px] flex flex-col">
@@ -71,10 +71,8 @@ const ResultCard: React.FC<ResultCardProps> = ({
                     </div>
                 ) : (
                     showContent ? (
-                        <>
-                            {content && <p className="text-gray-300 whitespace-pre-wrap">{content}</p>}
-                            {children}
-                        </>
+                        // Content is now expected to be passed as children, including editable fields
+                        children
                     ) : (
                         <p className="text-gray-500 italic">O conteúdo gerado aparecerá aqui...</p>
                     )

@@ -357,6 +357,9 @@ const App: React.FC = () => {
             )}
         </div>
     );
+    
+    const editableTextAreaClass = "w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition placeholder-gray-500 font-sans resize-y min-h-[120px] leading-relaxed";
+    const editableInputClass = "w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition placeholder-gray-500 font-sans";
 
     return (
         <div className="min-h-screen bg-gray-900 text-gray-200 font-sans">
@@ -496,38 +499,90 @@ const App: React.FC = () => {
 
                 {/* Results Column */}
                 <div className="flex flex-col gap-6">
-                     <ResultCard title="Títulos Sugeridos" icon={<PencilIcon />} isLoading={isGenerating && !generatedTitles.length} onRegenerate={() => setRegenModalField('titles')} hasContent={generatedTitles.length > 0} actionsDisabled={isLoading}>
-                         <ul className="space-y-2">
-                            {generatedTitles.map((title, index) => (
-                                <li key={index} className="flex items-center justify-between bg-gray-700/50 p-2 rounded-md group">
-                                    <span className="text-gray-300">{title}</span>
-                                    <button onClick={() => handleCopy(`title-${index}`, title)} className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-white" title="Copiar título">
-                                        {copiedField === `title-${index}` ? <ClipboardCheckIcon className="h-5 w-5 text-green-400" /> : <ClipboardIcon className="h-5 w-5" />}
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
+                    <ResultCard title="Títulos Sugeridos" icon={<PencilIcon />} isLoading={isGenerating && !generatedTitles.length} onRegenerate={() => setRegenModalField('titles')} hasContent={generatedTitles.length > 0} actionsDisabled={isLoading}>
+                        {generatedTitles.length > 0 && (
+                            <ul className="space-y-2">
+                                {generatedTitles.map((title, index) => (
+                                    <li key={index} className="flex items-center justify-between gap-2 bg-gray-700/50 p-2 rounded-md group">
+                                        <input 
+                                            type="text"
+                                            value={title}
+                                            onChange={(e) => {
+                                                const newTitles = [...generatedTitles];
+                                                newTitles[index] = e.target.value;
+                                                setGeneratedTitles(newTitles);
+                                            }}
+                                            className={`${editableInputClass} p-1`}
+                                            aria-label={`Editar título ${index + 1}`}
+                                        />
+                                        <button onClick={() => handleCopy(`title-${index}`, title)} className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-white flex-shrink-0" title="Copiar título">
+                                            {copiedField === `title-${index}` ? <ClipboardCheckIcon className="h-5 w-5 text-green-400" /> : <ClipboardIcon className="h-5 w-5" />}
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </ResultCard>
 
-                    <ResultCard title="Descrição" icon={<DocumentTextIcon />} isLoading={isGenerating && !generatedDescription} content={generatedDescription} onRegenerate={() => setRegenModalField('description')} onCopy={() => handleCopy('description', generatedDescription)} isCopied={copiedField === 'description'} actionsDisabled={isLoading} />
+                    <ResultCard title="Descrição" icon={<DocumentTextIcon />} isLoading={isGenerating && !generatedDescription} onRegenerate={() => setRegenModalField('description')} onCopy={() => handleCopy('description', generatedDescription)} isCopied={copiedField === 'description'} actionsDisabled={isLoading} hasContent={generatedDescription.length > 0}>
+                        {generatedDescription.length > 0 && (
+                            <textarea
+                                value={generatedDescription}
+                                onChange={(e) => setGeneratedDescription(e.target.value)}
+                                className={editableTextAreaClass}
+                                aria-label="Editar descrição"
+                            />
+                        )}
+                    </ResultCard>
 
                     <ResultCard title={creationType === CreationType.Story ? 'História Bíblica' : 'Oração'} icon={creationType === CreationType.Story ? <BookOpenIcon /> : <PrayingHandsIcon />} isLoading={isGenerating && !generatedContent} footerText={generatedContentCharCount > 0 ? `${generatedContentCharCount} caracteres` : ''} onRegenerate={() => setRegenModalField('content')} onCopy={() => handleCopy('content', generatedContent)} isCopied={copiedField === 'content'} hasContent={!!generatedContent} actionsDisabled={isLoading}>
-                        <div className="whitespace-pre-wrap text-gray-300 font-serif leading-relaxed">{generatedContent}</div>
+                        {generatedContent.length > 0 && (
+                            <textarea 
+                                className={`${editableTextAreaClass} min-h-[200px] font-serif`}
+                                value={generatedContent}
+                                onChange={(e) => {
+                                    setGeneratedContent(e.target.value);
+                                    setGeneratedContentCharCount(e.target.value.length);
+                                }}
+                                aria-label="Editar conteúdo principal"
+                            />
+                        )}
                     </ResultCard>
 
-                    <ResultCard title="Chamada para Ação (CTA)" icon={<MegaphoneIcon />} isLoading={isGenerating && !generatedCta} content={generatedCta} onRegenerate={() => setRegenModalField('cta')} onCopy={() => handleCopy('cta', generatedCta)} isCopied={copiedField === 'cta'} actionsDisabled={isLoading} />
+                    <ResultCard title="Chamada para Ação (CTA)" icon={<MegaphoneIcon />} isLoading={isGenerating && !generatedCta} onRegenerate={() => setRegenModalField('cta')} onCopy={() => handleCopy('cta', generatedCta)} isCopied={copiedField === 'cta'} actionsDisabled={isLoading} hasContent={generatedCta.length > 0}>
+                         {generatedCta.length > 0 && (
+                            <textarea
+                                value={generatedCta}
+                                onChange={(e) => setGeneratedCta(e.target.value)}
+                                className={editableTextAreaClass}
+                                aria-label="Editar chamada para ação"
+                            />
+                        )}
+                    </ResultCard>
 
                     <ResultCard title="Tags de SEO" icon={<TagIcon />} isLoading={isGenerating && !generatedTags.length} onRegenerate={() => setRegenModalField('tags')} onCopy={() => handleCopy('tags', generatedTags.join(', '))} isCopied={copiedField === 'tags'} hasContent={generatedTags.length > 0} actionsDisabled={isLoading}>
-                        <div className="flex flex-wrap gap-2">
-                            {generatedTags.map((tag, index) => (
-                                <span key={index} className="bg-gray-700 text-amber-300 text-sm font-medium px-3 py-1 rounded-full">
-                                    {tag}
-                                </span>
-                            ))}
-                        </div>
+                        {generatedTags.length > 0 && (
+                             <input 
+                                type="text"
+                                value={generatedTags.join(', ')}
+                                onChange={(e) => setGeneratedTags(e.target.value.split(',').map(tag => tag.trim()).filter(Boolean))}
+                                className={editableInputClass}
+                                placeholder="Tags separadas por vírgula"
+                                aria-label="Editar tags de SEO"
+                            />
+                        )}
                     </ResultCard>
 
-                    <ResultCard title="Prompt para Thumbnail" icon={<ImageIcon />} isLoading={isGenerating && !generatedThumbnailPrompt} content={generatedThumbnailPrompt} onRegenerate={() => setRegenModalField('thumbnail')} onCopy={() => handleCopy('thumbnail', generatedThumbnailPrompt)} isCopied={copiedField === 'thumbnail'} actionsDisabled={isLoading} />
+                    <ResultCard title="Prompt para Thumbnail" icon={<ImageIcon />} isLoading={isGenerating && !generatedThumbnailPrompt} onRegenerate={() => setRegenModalField('thumbnail')} onCopy={() => handleCopy('thumbnail', generatedThumbnailPrompt)} isCopied={copiedField === 'thumbnail'} actionsDisabled={isLoading} hasContent={generatedThumbnailPrompt.length > 0}>
+                        {generatedThumbnailPrompt.length > 0 && (
+                            <textarea
+                                value={generatedThumbnailPrompt}
+                                onChange={(e) => setGeneratedThumbnailPrompt(e.target.value)}
+                                className={editableTextAreaClass}
+                                aria-label="Editar prompt para thumbnail"
+                            />
+                        )}
+                    </ResultCard>
                 </div>
             </main>
         </div>
