@@ -222,7 +222,10 @@ REGRA 1 (FIDELIDADE BÍBLICA E EXPANSÃO NARRATIVA): Sua principal diretriz é a
 - **Linguagem Sensorial Imersiva:** Descreva o que os personagens veem, ouvem, cheiram, provam e sentem. Faça o leitor se sentir presente na cena.
 - **CRUCIALMENTE: NÃO INVENTE novos personagens, diálogos falados que não estão no texto, ou eventos que contradigam a passagem.** A precisão teológica é primordial, mas a profundidade da narrativa deve ser usada para alcançar o comprimento desejado.
 
-REGRA 2 (ESTRUTURA): O texto deve ter uma estrutura clara de início (apresentação), meio (desenvolvimento/conflito) e fim (resolução).
+REGRA 2 (ESTRUTURA NARRATIVA COMPLETA): É ABSOLUTAMENTE ESSENCIAL que o texto tenha uma narrativa completa, com um início, meio e fim claros e bem definidos.
+- **Início:** Comece com uma introdução curta e cativante que desperte a curiosidade do leitor e estabeleça a cena ou o dilema inicial.
+- **Meio:** Desenvolva a história de forma fluida, utilizando as técnicas de expansão da REGRA 1.
+- **Fim:** A história DEVE ter uma conclusão satisfatória e com sentido. NÃO INTERROMPA A NARRATIVA abruptamente. O final deve fornecer uma resolução, uma lição ou um momento de reflexão que feche a história de forma coesa. A qualidade da conclusão é mais importante do que atingir a contagem exata de caracteres.
 `;
         } else { // Prayer
             prompt += `
@@ -233,7 +236,10 @@ REGRA 1 (PROFUNDIDADE E EXPANSÃO DA ORAÇÃO): Sua principal diretriz é criar 
 - **Estrutura Progressiva e Prolongada:** Desenvolve a oração em seções distintas e bem elaboradas. Dedique parágrafos separados para adoração, confissão, gratidão, súplicas e intercessões, concluindo com uma declaração de fé e confiança. Não apresse as transições.
 - **CRUCIALMENTE: A oração deve ser respeitosa, reverente e alinhada com os princípios cristãos.**
 
-REGRA 2 (ESTRUTURA): A oração deve ter uma estrutura clara de introdução (invocação, adoração), corpo (petições, agradecimentos, intercessões) e conclusão (declaração de fé, amém).
+REGRA 2 (ESTRUTURA COMPLETA DA ORAÇÃO): É ABSOLUTAMENTE ESSENCIAL que a oração seja uma peça completa, com início, meio e fim claros e bem definidos.
+- **Início:** Comece com uma introdução curta e reverente, como uma invocação ou adoração, que estabeleça o tom da oração.
+- **Meio:** Desenvolva o corpo da oração de forma fluida, abordando os temas de gratidão, súplica ou intercessão com a profundidade descrita na REGRA 1.
+- **Fim:** A oração DEVE ter uma conclusão com sentido e que transmita um sentimento de encerramento. NÃO TERMINE A ORAÇÃO abruptamente. Finalize com uma declaração de fé, confiança, ou um "Amém" que se sinta natural e conclusivo. A qualidade do encerramento é mais importante do que atingir a contagem exata de caracteres.
 `;
         }
 
@@ -261,7 +267,7 @@ Formate com parágrafos.`;
             
             const contentWord = creationType === CreationType.Story ? 'a narrativa' : 'a oração';
 
-            currentPrompt += `\n\nAVISO IMPORTANTE: ${lengthFeedback} Expanda ou resuma ${contentWord} para atingir a contagem de caracteres solicitada de aproximadamente ${characterCount} caracteres. A obediência a esta regra é essencial.`;
+            currentPrompt += `\n\nAVISO IMPORTANTE: ${lengthFeedback} Expanda ou resuma ${contentWord} para atingir a contagem de caracteres solicitada de aproximadamente ${characterCount} caracteres. A obediência a esta regra é essencial, mas é ainda MAIS IMPORTANTE garantir que a ${contentWord} tenha um final conclusivo.`;
         }
         
         generatedText = await generateWithGemini(apiKey, currentPrompt, language, { temperature: 0.5 });
@@ -271,19 +277,7 @@ Formate com parágrafos.`;
         }
     }
 
-    console.warn(`generateContent: After ${maxRetries + 1} attempts, the content length (${generatedText.length}) is still outside the desired range of ${characterCount} +/- ${CHARACTER_TOLERANCE}.`);
-
-    if (generatedText.length > characterCount + CHARACTER_TOLERANCE) {
-        const hardLimit = characterCount + CHARACTER_TOLERANCE;
-        let cutIndex = generatedText.lastIndexOf('.', hardLimit);
-        if (cutIndex === -1 || cutIndex < hardLimit - 50) { 
-            cutIndex = generatedText.lastIndexOf(' ', hardLimit);
-        }
-        if (cutIndex === -1) {
-            cutIndex = hardLimit;
-        }
-        generatedText = generatedText.substring(0, cutIndex).trim();
-    }
+    console.warn(`generateContent: After ${maxRetries + 1} attempts, the content length (${generatedText.length}) is still outside the desired range of ${characterCount} +/- ${CHARACTER_TOLERANCE}. Returning the last attempt without truncation to preserve the narrative ending.`);
 
     return generatedText;
 }
