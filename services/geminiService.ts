@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, GenerateContentResponse, Type } from "@google/genai";
 import { CreationType, GenerationParams } from "../types";
 
@@ -204,30 +203,45 @@ export async function generateContent(params: GenerationParams, apiKey: string, 
     const { creationType, mainPrompt, characterCount, language } = params;
     const languageName = languageMap[language] || 'Português do Brasil';
     
-    const prompt = `Sua tarefa tem cinco regras ABSOLUTAS e OBRIGATÓRIAS.
+    let prompt = `Sua tarefa tem cinco regras ABSOLUTAS e OBRIGATÓRIAS.
 
 REGRA 0 (IDIOMA): A resposta DEVE ser escrita inteiramente em ${languageName}.
+`;
 
-REGRA 1 (FIDELIDADE BÍBLICA E EXPANSÃO NARRATIVA): Sua principal diretriz é a fidelidade bíblica. Ao criar uma história, você deve expandir a narrativa, mas fazendo isso EXCLUSIVAMENTE através de:
-- **Detalhes Descritivos:** Descreva o cenário, as vestimentas, a atmosfera baseando-se no contexto histórico e geográfico da passagem.
-- **Monólogo Interior:** Explore os possíveis pensamentos, emoções, medos e esperanças dos personagens BÍBLICOS, inferindo-os a partir de suas ações e do contexto da Escritura.
-- **Ações Detalhadas:** Transforme uma ação simples (ex: 'ele caminhou') em uma descrição mais rica e vívida (ex: 'ele caminhou com passos firmes sobre a poeira da estrada, o sol forte em seu rosto...').
-- **Linguagem Sensorial:** Descreva o que os personagens veem, ouvem, cheiram e sentem.
-- **CRUCIALMENTE: NÃO INVENTE novos personagens, diálogos falados que não estão no texto, ou eventos que contradigam a passagem.** A precisão teológica é primordial.
+    if (creationType === CreationType.Story) {
+        prompt += `
+REGRA 1 (FIDELIDADE BÍBLICA E EXPANSÃO NARRATIVA): Sua principal diretriz é a fidelidade bíblica. É INACEITÁVEL gerar uma história curta; você DEVE usar as seguintes técnicas para expandir a narrativa e atingir o comprimento solicitado na REGRA 3, fazendo isso EXCLUSIVAMENTE através de:
+- **Elaboração Detalhada de Cenas:** Aprofunde CADA cena da história. Em vez de simplesmente narrar um evento, mergulhe nos detalhes. Descreva o cenário (o calor do sol, a textura da areia, os sons do mercado), as vestimentas, a atmosfera baseando-se no contexto histórico e geográfico da passagem.
+- **Monólogo Interior Aprofundado:** Dedique parágrafos para explorar os pensamentos, emoções, medos e esperanças dos personagens BÍBLICOS. Infira esses sentimentos a partir de suas ações e do contexto da Escritura. O que Davi sentiu ao ver Golias? Qual a angústia de Jonas no ventre do peixe?
+- **Ações Ricas em Detalhes:** Transforme ações simples (ex: 'ele caminhou') em descrições vívidas e prolongadas (ex: 'ele caminhou com passos firmes e hesitantes sobre a poeira da estrada, sentindo cada pedra sob suas sandálias gastas, enquanto o sol forte castigava seu rosto e o vento sussurrava dúvidas em seus ouvidos...').
+- **Linguagem Sensorial Imersiva:** Descreva o que os personagens veem, ouvem, cheiram, provam e sentem. Faça o leitor se sentir presente na cena.
+- **CRUCIALMENTE: NÃO INVENTE novos personagens, diálogos falados que não estão no texto, ou eventos que contradigam a passagem.** A precisão teológica é primordial, mas a profundidade da narrativa deve ser usada para alcançar o comprimento desejado.
 
-REGRA 2 (ESTRUTURA): O texto deve ter uma estrutura clara de início, meio e fim.
-- Para uma história: apresentação, desenvolvimento/conflito e resolução.
-- Para uma oração: introdução, corpo da petição e conclusão.
+REGRA 2 (ESTRUTURA): O texto deve ter uma estrutura clara de início (apresentação), meio (desenvolvimento/conflito) e fim (resolução).
+`;
+    } else { // Prayer
+        prompt += `
+REGRA 1 (PROFUNDIDADE E EXPANSÃO DA ORAÇÃO): Sua principal diretriz é criar uma oração sincera, profunda e teologicamente sólida. É INACEITÁVEL gerar uma oração curta; você DEVE usar as seguintes técnicas para expandir a oração e atingir o comprimento solicitado na REGRA 3:
+- **Elaboração Detalhada de Temas:** Aprofunde CADA ponto da oração. Se o tema for gratidão, não diga apenas "obrigado pela família", mas descreva momentos específicos de alegria, o que cada membro significa, e a gratidão por sua saúde e união. Se for uma súplica por força, descreva a natureza do desafio, os sentimentos de fraqueza e a confiança específica na intervenção divina, baseando-se em promessas bíblicas.
+- **Uso de Metáforas e Linguagem Poética:** Utilize linguagem rica e poética, inspirada nos Salmos. Por exemplo, em vez de "proteja-me", use "seja meu escudo e fortaleza, a rocha em que me firmo, a sombra que me abriga do calor da tribulação".
+- **Referências Bíblicas Explícitas:** Incorpore referências ou alusões a passagens bíblicas que sustentem o tema da oração. Diga "Assim como guardaste Daniel na cova dos leões, guarda-me dos perigos que me cercam" ou "Que a Tua paz, que excede todo entendimento, inunde meu coração como prometido em Filipenses".
+- **Estrutura Progressiva e Prolongada:** Desenvolva a oração em seções distintas e bem elaboradas. Dedique parágrafos separados para adoração, confissão, gratidão, súplicas e intercessões, concluindo com uma declaração de fé e confiança. Não apresse as transições.
+- **CRUCIALMENTE: A oração deve ser respeitosa, reverente e alinhada com os princípios cristãos.**
 
-REGRA 3 (CONTAGEM DE CARACTERES): O resultado final DEVE ter aproximadamente ${characterCount} caracteres (com uma tolerância de +/- 100 caracteres). Esta é uma regra tão importante quanto a fidelidade bíblica. Use a liberdade criativa descrita na REGRA 1 para expandir a narrativa e ATINGIR a contagem de caracteres solicitada. É essencial que o texto tenha o comprimento adequado.
+REGRA 2 (ESTRUTURA): A oração deve ter uma estrutura clara de introdução (invocação, adoração), corpo (petições, agradecimentos, intercessões) e conclusão (declaração de fé, amém).
+`;
+    }
 
-REGRA 4 (FORMATO DA RESPOSTA): A resposta deve conter APENAS o texto da ${creationType === CreationType.Story ? 'história' : 'oração'}. Não inclua nenhum texto extra, como títulos ou introduções.
+    prompt += `
+REGRA 3 (CONTAGEM DE CARACTERES): O resultado final DEVE ter aproximadamente ${characterCount} caracteres (com uma tolerância de +/- 100 caracteres). Esta é uma regra CRÍTICA e OBRIGATÓRIA. Use a liberdade criativa descrita na REGRA 1 para expandir o conteúdo e ATINGIR a contagem de caracteres solicitada. É essencial que o texto tenha o comprimento adequado. Repito, o texto final deve ter aproximadamente ${characterCount} caracteres.
 
-Após confirmar que entendeu e irá seguir estas cinco regras, crie uma ${creationType === CreationType.Story ? 'história bíblica' : 'oração'} com base no tema: "${mainPrompt}".
+REGRA 4 (FORMATO DA RESPOSTA): Sua resposta deve ser EXCLUSIVAMENTE o texto da ${creationType === CreationType.Story ? 'história' : 'oração'}. NÃO inclua nenhum texto introdutório, títulos, explicações, confirmações das regras, ou qualquer outro texto que não seja a criação solicitada. A resposta deve começar diretamente com a primeira palavra da ${creationType === CreationType.Story ? 'história' : 'oração'}.
+
+Agora, seguindo TODAS as regras acima sem exceção, crie a ${creationType === CreationType.Story ? 'história bíblica' : 'oração'} com base no tema: "${mainPrompt}".
 ${modification ? `\n\nInstrução de modificação: "${modification}". Aplique-a, mas SEMPRE respeitando TODAS as regras.` : ''}
 Formate com parágrafos.`;
     
-    let generatedText = await generateWithGemini(apiKey, prompt, language, { temperature: 0.4 });
+    let generatedText = await generateWithGemini(apiKey, prompt, language, { temperature: 0.5 });
 
     // This logic is a safety net. If the AI still generates text that is too long, we truncate it gracefully.
     if (generatedText.length > characterCount + 100) {
