@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { CreationType, GenerationParams, HistoryItem } from './types';
 import * as geminiService from './services/geminiService';
@@ -535,7 +536,7 @@ const App: React.FC = () => {
                         )}
                     </ResultCard>
 
-                    <ResultCard title={creationType === CreationType.Story ? 'História Bíblica' : 'Oração'} icon={creationType === CreationType.Story ? <BookOpenIcon /> : <PrayingHandsIcon />} isLoading={isGenerating && !generatedContent} footerText={generatedContentCharCount > 0 ? `${generatedContentCharCount} caracteres` : ''} onRegenerate={() => setRegenModalField('content')} onCopy={() => handleCopy('content', generatedContent)} isCopied={copiedField === 'content'} hasContent={!!generatedContent} actionsDisabled={isLoading}>
+                    <ResultCard title={creationType === CreationType.Story ? 'História Bíblica' : 'Oração'} icon={creationType === CreationType.Story ? <BookOpenIcon /> : <PrayingHandsIcon />} isLoading={isGenerating && !generatedContent} footerText={generatedContentCharCount > 0 ? `${generatedContentCharCount} / ~${characterCount} caracteres` : ''} onRegenerate={() => setRegenModalField('content')} onCopy={() => handleCopy('content', generatedContent)} isCopied={copiedField === 'content'} hasContent={!!generatedContent} actionsDisabled={isLoading}>
                         {generatedContent.length > 0 && (
                             <textarea 
                                 className={`${editableTextAreaClass} min-h-[200px] font-serif`}
@@ -549,13 +550,14 @@ const App: React.FC = () => {
                         )}
                     </ResultCard>
 
-                    <ResultCard title="Chamada para Ação (CTA)" icon={<MegaphoneIcon />} isLoading={isGenerating && !generatedCta} onRegenerate={() => setRegenModalField('cta')} onCopy={() => handleCopy('cta', generatedCta)} isCopied={copiedField === 'cta'} actionsDisabled={isLoading} hasContent={generatedCta.length > 0}>
+                    <ResultCard title="Chamada para Ação (CTA)" icon={<MegaphoneIcon />} isLoading={isGenerating && !generatedCta} footerText={generatedCta.length > 0 ? `${generatedCta.length} / 500 caracteres` : ''} onRegenerate={() => setRegenModalField('cta')} onCopy={() => handleCopy('cta', generatedCta)} isCopied={copiedField === 'cta'} actionsDisabled={isLoading} hasContent={generatedCta.length > 0}>
                          {generatedCta.length > 0 && (
                             <textarea
                                 value={generatedCta}
                                 onChange={(e) => setGeneratedCta(e.target.value)}
                                 className={editableTextAreaClass}
                                 aria-label="Editar chamada para ação"
+                                maxLength={500}
                             />
                         )}
                     </ResultCard>

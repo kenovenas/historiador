@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, GenerateContentResponse, Type } from "@google/genai";
 import { CreationType, GenerationParams } from "../types";
 
@@ -247,10 +248,26 @@ Formate com parágrafos.`;
 export async function generateCta(params: GenerationParams, apiKey: string, modification?: string): Promise<string> {
     const languageName = languageMap[params.language] || 'Português do Brasil';
     const typeText = params.creationType === CreationType.Story ? 'história' : 'oração';
-    let prompt = `Baseado no tema "${params.mainPrompt}" para uma ${typeText}, crie uma "call to action" (CTA) persuasiva e otimizada para o engajamento no YouTube. A CTA deve incentivar o espectador a se inscrever no canal, ativar as notificações, curtir o vídeo e deixar um comentário com suas reflexões. Seja criativo e pessoal.`;
+    let prompt = `Baseado no tema "${params.mainPrompt}" para uma ${typeText}, crie uma "call to action" (CTA) persuasiva e otimizada para o engajamento no YouTube. A CTA deve incentivar o espectador a se inscrever no canal, ativar as notificações, curtir o vídeo e deixar um comentário com suas reflexões. Seja criativo e pessoal. O resultado final DEVE ter no máximo 500 caracteres.`;
     if (modification) {
         prompt += ` Modifique com a instrução: "${modification}".`;
     }
     prompt += ` Escreva a resposta no idioma ${languageName}. Retorne apenas o texto da CTA.`;
-    return generateWithGemini(apiKey, prompt, params.language);
+
+    let ctaText = await generateWithGemini(apiKey, prompt, params.language);
+
+    // Safeguard to enforce character limit
+    if (ctaText.length > 500) {
+        const hardLimit = 500;
+        let cutIndex = ctaText.lastIndexOf('.', hardLimit); // Try to cut at a sentence end
+        if (cutIndex === -1 || cutIndex < hardLimit - 50) { // Look for a period in a reasonable range
+            cutIndex = ctaText.lastIndexOf(' ', hardLimit);
+        }
+        if (cutIndex === -1) { // If no space, hard cut
+            cutIndex = hardLimit;
+        }
+        ctaText = ctaText.substring(0, cutIndex).trim();
+    }
+
+    return ctaText;
 }
