@@ -8,6 +8,7 @@ import TextAreaInput from './components/TextAreaInput';
 import ResultCard from './components/ResultCard';
 import LoadingSpinner from './components/LoadingSpinner';
 import HistoryPanel from './components/HistoryPanel';
+import AutoResizingTextarea from './components/AutoResizingTextarea';
 import { BookOpenIcon, SparklesIcon, PencilIcon, TagIcon, ImageIcon, PrayingHandsIcon, DocumentTextIcon, MegaphoneIcon, ClipboardIcon, ClipboardCheckIcon, TrashIcon } from './components/Icons';
 
 type RegenerationField = 'titles' | 'description' | 'tags' | 'thumbnail' | 'content' | 'cta';
@@ -359,7 +360,7 @@ const App: React.FC = () => {
         </div>
     );
     
-    const editableTextAreaClass = "w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition placeholder-gray-500 font-sans resize-y min-h-[120px] leading-relaxed";
+    const editableTextAreaClass = "w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition placeholder-gray-500 font-sans leading-relaxed overflow-hidden";
     const editableInputClass = "w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition placeholder-gray-500 font-sans";
 
     return (
@@ -527,7 +528,7 @@ const App: React.FC = () => {
 
                     <ResultCard title="Descrição" icon={<DocumentTextIcon />} isLoading={isGenerating && !generatedDescription} onRegenerate={() => setRegenModalField('description')} onCopy={() => handleCopy('description', generatedDescription)} isCopied={copiedField === 'description'} actionsDisabled={isLoading} hasContent={generatedDescription.length > 0}>
                         {generatedDescription.length > 0 && (
-                            <textarea
+                            <AutoResizingTextarea
                                 value={generatedDescription}
                                 onChange={(e) => setGeneratedDescription(e.target.value)}
                                 className={editableTextAreaClass}
@@ -538,7 +539,7 @@ const App: React.FC = () => {
 
                     <ResultCard title={creationType === CreationType.Story ? 'História Bíblica' : 'Oração'} icon={creationType === CreationType.Story ? <BookOpenIcon /> : <PrayingHandsIcon />} isLoading={isGenerating && !generatedContent} footerText={generatedContentCharCount > 0 ? `${generatedContentCharCount} / ~${characterCount} caracteres` : ''} onRegenerate={() => setRegenModalField('content')} onCopy={() => handleCopy('content', generatedContent)} isCopied={copiedField === 'content'} hasContent={!!generatedContent} actionsDisabled={isLoading}>
                         {generatedContent.length > 0 && (
-                            <textarea 
+                            <AutoResizingTextarea 
                                 className={`${editableTextAreaClass} min-h-[200px] font-serif`}
                                 value={generatedContent}
                                 onChange={(e) => {
@@ -552,7 +553,7 @@ const App: React.FC = () => {
 
                     <ResultCard title="Chamada para Ação (CTA)" icon={<MegaphoneIcon />} isLoading={isGenerating && !generatedCta} footerText={generatedCta.length > 0 ? `${generatedCta.length} / 500 caracteres` : ''} onRegenerate={() => setRegenModalField('cta')} onCopy={() => handleCopy('cta', generatedCta)} isCopied={copiedField === 'cta'} actionsDisabled={isLoading} hasContent={generatedCta.length > 0}>
                          {generatedCta.length > 0 && (
-                            <textarea
+                            <AutoResizingTextarea
                                 value={generatedCta}
                                 onChange={(e) => setGeneratedCta(e.target.value)}
                                 className={editableTextAreaClass}
@@ -577,7 +578,7 @@ const App: React.FC = () => {
 
                     <ResultCard title="Prompt para Thumbnail" icon={<ImageIcon />} isLoading={isGenerating && !generatedThumbnailPrompt} onRegenerate={() => setRegenModalField('thumbnail')} onCopy={() => handleCopy('thumbnail', generatedThumbnailPrompt)} isCopied={copiedField === 'thumbnail'} actionsDisabled={isLoading} hasContent={generatedThumbnailPrompt.length > 0}>
                         {generatedThumbnailPrompt.length > 0 && (
-                            <textarea
+                            <AutoResizingTextarea
                                 value={generatedThumbnailPrompt}
                                 onChange={(e) => setGeneratedThumbnailPrompt(e.target.value)}
                                 className={editableTextAreaClass}
